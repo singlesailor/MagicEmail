@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       folder:
-        description: "Folder name"
+        description: "Folder name (e.g. campaign1)"
         required: true
       subject:
         description: "Email subject"
@@ -24,39 +24,23 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create folder
-        run: mkdir -p ${{ github.event.inputs.folder }}
+        run: mkdir -p "${{ github.event.inputs.folder }}"
 
-      - name: Generate index.html
+      - name: Generate page from template
         run: |
-          cat <<EOF > ${{ github.event.inputs.folder }}/index.html
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Send Email</title>
+          cp templates/campaign-template.html temp.html
 
-            <script>
-              function redirect() {
-                const mailto =
-                  "mailto:public.correspondence@cabinetoffice.gov.uk" +
-                  "?subject=" + encodeURIComponent("${{ github.event.inputs.subject }}") +
-                  "&body=" + encodeURIComponent("${{ github.event.inputs.body }}");
+          sed -i "s|__FOLDER__|${{ github.event.inputs.folder }}|g" temp.html
+          sed -i "s|__SUBJECT__|${{ github.event.inputs.subject }}|g" temp.html
+          sed -i "s|__BODY__|${{ github.event.inputs.body }}|g" temp.html
 
-                window.location.href = mailto;
-              }
-              setTimeout(redirect, 300);
-            </script>
-          </head>
-          <body>
-            <p>Redirecting...</p>
-          </body>
-          </html>
-          EOF
+          mv temp.html "${{ github.event.inputs.folder }}/index.html"
 
       - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+
           git add .
-          git commit -m "Add campaign ${{ github.event.inputs.folder }}"
+          git commit -m "Add campaign ${{ github.event.inputs.folder }}" || echo "No changes"
           git push

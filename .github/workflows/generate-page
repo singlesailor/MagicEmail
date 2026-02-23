@@ -1,65 +1,10 @@
-name: Generate Campaign Page
+name: Test
 
 on:
   workflow_dispatch:
-    inputs:
-      folder:
-        description: "Folder name (e.g. campaign1)"
-        required: true
-      to:
-        description: "Primary recipient (comma separated if multiple)"
-        required: true
-      cc:
-        description: "CC recipients (comma separated)"
-        required: false
-      bcc:
-        description: "BCC recipients (comma separated)"
-        required: false
-      subject:
-        description: "Email subject"
-        required: true
-      body:
-        description: "Email body"
-        required: true
-
-permissions:
-  contents: write
 
 jobs:
-  generate:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Prevent overwrite
-        run: |
-          if [ -d "${{ github.event.inputs.folder }}" ]; then
-            echo "Folder already exists"
-            exit 1
-          fi
-
-      - name: Create folder
-        run: mkdir -p "${{ github.event.inputs.folder }}"
-
-      - name: Generate page from template
-        run: |
-          cp templates/campaign-template.html temp.html
-
-          sed -i "s|__TO__|${{ github.event.inputs.to }}|g" temp.html
-          sed -i "s|__CC__|${{ github.event.inputs.cc }}|g" temp.html
-          sed -i "s|__BCC__|${{ github.event.inputs.bcc }}|g" temp.html
-          sed -i "s|__SUBJECT__|${{ github.event.inputs.subject }}|g" temp.html
-          sed -i "s|__BODY__|${{ github.event.inputs.body }}|g" temp.html
-          sed -i "s|__LABEL__|${{ github.event.inputs.folder }}|g" temp.html
-
-          mv temp.html "${{ github.event.inputs.folder }}/index.html"
-
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          git add .
-          git commit -m "Add campaign ${{ github.event.inputs.folder }}"
-          git push
+      - run: echo "Hello"

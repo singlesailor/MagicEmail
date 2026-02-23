@@ -6,6 +6,15 @@ on:
       folder:
         description: "Folder name (e.g. campaign1)"
         required: true
+      to:
+        description: "Primary recipient (comma separated if multiple)"
+        required: true
+      cc:
+        description: "CC recipients (comma separated)"
+        required: false
+      bcc:
+        description: "BCC recipients (comma separated)"
+        required: false
       subject:
         description: "Email subject"
         required: true
@@ -23,6 +32,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prevent overwrite
+        run: |
+          if [ -d "${{ github.event.inputs.folder }}" ]; then
+            echo "Folder already exists"
+            exit 1
+          fi
+
       - name: Create folder
         run: mkdir -p "${{ github.event.inputs.folder }}"
 
@@ -30,9 +46,12 @@ jobs:
         run: |
           cp templates/campaign-template.html temp.html
 
-          sed -i "s|__FOLDER__|${{ github.event.inputs.folder }}|g" temp.html
+          sed -i "s|__TO__|${{ github.event.inputs.to }}|g" temp.html
+          sed -i "s|__CC__|${{ github.event.inputs.cc }}|g" temp.html
+          sed -i "s|__BCC__|${{ github.event.inputs.bcc }}|g" temp.html
           sed -i "s|__SUBJECT__|${{ github.event.inputs.subject }}|g" temp.html
           sed -i "s|__BODY__|${{ github.event.inputs.body }}|g" temp.html
+          sed -i "s|__LABEL__|${{ github.event.inputs.folder }}|g" temp.html
 
           mv temp.html "${{ github.event.inputs.folder }}/index.html"
 
@@ -42,5 +61,5 @@ jobs:
           git config user.email "actions@github.com"
 
           git add .
-          git commit -m "Add campaign ${{ github.event.inputs.folder }}" || echo "No changes"
+          git commit -m "Add campaign ${{ github.event.inputs.folder }}"
           git push

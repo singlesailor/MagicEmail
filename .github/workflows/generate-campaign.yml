@@ -18,9 +18,6 @@ on:
       subject:
         description: "Email subject"
         required: true
-      body:
-        description: "Email body (multi-line supported)"
-        required: true
 
 permissions:
   contents: write
@@ -49,7 +46,6 @@ jobs:
           CC: ${{ github.event.inputs.cc }}
           BCC: ${{ github.event.inputs.bcc }}
           SUBJECT: ${{ github.event.inputs.subject }}
-          BODY: ${{ github.event.inputs.body }}
         run: |
           node <<'EOF'
           const fs = require('fs');
@@ -59,16 +55,24 @@ jobs:
           const cc = process.env.CC || "";
           const bcc = process.env.BCC || "";
           const subject = encodeURIComponent(process.env.SUBJECT);
-          const body = encodeURIComponent(process.env.BODY);
+
+          // Read body from file
+          const rawBody = fs.readFileSync('campaign-body.txt', 'utf8');
+
+          // Normalize line endings
+          const normalized = rawBody.replace(/\r\n/g, "\n");
+
+          // Encode body
+          const encodedBody = encodeURIComponent(normalized);
 
           let mailto = `mailto:${to}?`;
-
           const params = [];
 
           if (cc) params.push(`cc=${cc}`);
           if (bcc) params.push(`bcc=${bcc}`);
+
           params.push(`subject=${subject}`);
-          params.push(`body=${body}`);
+          params.push(`body=${encodedBody}`);
 
           mailto += params.join("&");
 

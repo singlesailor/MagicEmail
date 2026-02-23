@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Send Email</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-G6BG8KV70C"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-G6BG8KV70C');
+
+    function buildMailto() {
+      const to = "tony.burke.mp@aph.gov.au";
+      const cc = "senator.cash@aph.gov.au,tony.burke.mp@aph.gov.au,senator.wong@aph.gov.au,angus.taylor.mp@aph.gov.au,senator.duniam@aph.gov.au,james.dowling@news.com.au,Josh.Burns.MP@aph.gov.au,Sarah.Witty.MP@aph.gov.au";
+      const bcc = "";
+      const subject = "Clarification Requested on Permanent Residency Decision Involving Family of IRGC Official";
+      const body = "__BODY__";
+
+      let params = [];
+
+      if (cc) {
+        params.push("cc=" + encodeURIComponent(cc));
+      }
+
+      if (bcc) {
+        params.push("bcc=" + encodeURIComponent(bcc));
+      }
+
+      params.push("subject=" + encodeURIComponent(subject));
+      params.push("body=" + encodeURIComponent(body));
+
+      return "mailto:" + encodeURIComponent(to) + "?" + params.join("&");
+    }
+
+    function redirect() {
+      gtag('event', 'mailto_open', {
+        event_category: 'Email Campaign',
+        event_label: "Hanieh"
+      });
+
+      const mailto = buildMailto();
+
+      setTimeout(() => {
+        window.location.href = mailto;
+      }, 300);
+    }
+
+    window.onload = redirect;
+  </script>
+</head>
+<body>
+  <p>Redirecting…</p>
+</body>
+</html>

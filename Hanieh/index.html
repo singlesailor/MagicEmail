@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Send Email</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-G6BG8KV70C"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-G6BG8KV70C');
+
+    function buildMailto() {
+      const to = "tony.burke.mp@aph.gov.au";
+      const cc = "senator.cash@aph.gov.au,tony.burke.mp@aph.gov.au,senator.wong@aph.gov.au,angus.taylor.mp@aph.gov.au,senator.duniam@aph.gov.au,james.dowling@news.com.au,Josh.Burns.MP@aph.gov.au,Sarah.Witty.MP@aph.gov.au";
+      const bcc = "";
+      const subject = "Clarification Requested on Permanent Residency Decision Involving Family of IRGC Official";
+      const body = "Dear Minister Burke,  I write in your capacity as Australia’s Minister for Immigration and Multicultural Affairs to seek urgent clarification regarding reports that Ms Hanieh Sadat Safavi, daughter of a senior Islamic Revolutionary Guard Corps (IRGC) official, was granted Australian permanent residency within approximately eight months.  As you are aware, the IRGC has been responsible for killing tens of thousands of Iranian civilians in recent months and continues to threaten Western democracies while coordinating terrorist activities abroad. Its networks extend to Australia, with documented cases of foreign interference and security threats on our soil.  Ordinary Iranians with no links to the regime routinely endure years—often a decade or more—of scrutiny when seeking to build a life in Australia, including exhaustive background checks, financial investigations, intergenerational assessments, repeated delays, refusals, and costly legal appeals. Many wait 10–15 years despite contributing positively to Australian society and posing no security risk.  Against this backdrop, the rapid grant of permanent residency to the daughter of a high-ranking IRGC official raises serious questions:  What security and character vetting was conducted in this case?  Who approved the decision, and on what basis?  What risk assessments were undertaken, and by whom?  How are Australians expected to feel confident in their safety if individuals with direct regime ties are admitted without transparency?  Public concern is reflected in a growing petition calling for transparency and action, which has received close to 100,000 signatures: https://www.change.org/p/deport-hanieh-sadat-safavi-daughter-of-a-senior-irgc-commander-from-australia  I respectfully request a public response addressing these issues, including the safeguards in place to ensure Australia’s immigration system is not compromised by individuals connected to foreign terrorist organisations.  Yours sincerely,";
+
+      let params = [];
+
+      if (cc) {
+        params.push("cc=" + encodeURIComponent(cc));
+      }
+
+      if (bcc) {
+        params.push("bcc=" + encodeURIComponent(bcc));
+      }
+
+      params.push("subject=" + encodeURIComponent(subject));
+      params.push("body=" + encodeURIComponent(body));
+
+      return "mailto:" + encodeURIComponent(to) + "?" + params.join("&");
+    }
+
+    function redirect() {
+      gtag('event', 'mailto_open', {
+        event_category: 'Email Campaign',
+        event_label: "Hanieh"
+      });
+
+      const mailto = buildMailto();
+
+      setTimeout(() => {
+        window.location.href = mailto;
+      }, 300);
+    }
+
+    window.onload = redirect;
+  </script>
+</head>
+<body>
+  <p>Redirecting…</p>
+</body>
+</html>

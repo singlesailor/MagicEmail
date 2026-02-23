@@ -1,0 +1,84 @@
+name: Generate Campaign Page
+
+on:
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: "Folder name (e.g. campaign1)"
+        required: true
+      to:
+        description: "Primary recipient (comma separated)"
+        required: true
+      cc:
+        description: "CC recipients (comma separated)"
+        required: false
+      bcc:
+        description: "BCC recipients (comma separated)"
+        required: false
+      subject:
+        description: "Email subject"
+        required: true
+      body:
+        description: "Email body (multi-line supported)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prevent overwrite
+        run: |
+          if [ -d "${{ github.event.inputs.folder }}" ]; then
+            echo "Folder already exists"
+            exit 1
+          fi
+
+      - name: Create folder
+        run: mkdir -p "${{ github.event.inputs.folder }}"
+
+      - name: Generate page from template
+        env:
+          FOLDER: ${{ github.event.inputs.folder }}
+          TO: ${{ github.event.inputs.to }}
+          CC: ${{ github.event.inputs.cc }}
+          BCC: ${{ github.event.inputs.bcc }}
+          SUBJECT: ${{ github.event.inputs.subject }}
+          BODY: ${{ github.event.inputs.body }}
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+
+          const folder = process.env.FOLDER;
+          const to = process.env.TO;
+          const cc = process.env.CC || "";
+          const bcc = process.env.BCC || "";
+          const subject = process.env.SUBJECT;
+          const body = process.env.BODY;
+
+          const template = fs.readFileSync('templates/campaign-template.html', 'utf8');
+
+          const output = template
+            .replace(/__TO__/g, to)
+            .replace(/__CC__/g, cc)
+            .replace(/__BCC__/g, bcc)
+            .replace(/__SUBJECT__/g, subject)
+            .replace(/__LABEL__/g, folder)
+            .replace(/BODY_PLACEHOLDER/g, JSON.stringify(body));
+
+          fs.writeFileSync(`${folder}/index.html`, output);
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add .
+          git commit -m "Add campaign ${{ github.event.inputs.folder }}"
+          git push

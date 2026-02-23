@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       folder:
-        description: "Folder name (e.g. campaign1)"
+        description: "Folder name"
         required: true
       to:
         description: "Primary recipient (comma separated)"
         required: true
       cc:
-        description: "CC recipients (comma separated)"
+        description: "CC recipients"
         required: false
       bcc:
-        description: "BCC recipients (comma separated)"
+        description: "BCC recipients"
         required: false
       subject:
         description: "Email subject"
@@ -42,7 +42,7 @@ jobs:
       - name: Create folder
         run: mkdir -p "${{ github.event.inputs.folder }}"
 
-      - name: Generate page from template
+      - name: Generate static page
         env:
           FOLDER: ${{ github.event.inputs.folder }}
           TO: ${{ github.event.inputs.to }}
@@ -58,27 +58,33 @@ jobs:
           const to = process.env.TO;
           const cc = process.env.CC || "";
           const bcc = process.env.BCC || "";
-          const subject = process.env.SUBJECT;
-          const body = process.env.BODY;
+          const subject = encodeURIComponent(process.env.SUBJECT);
+          const body = encodeURIComponent(process.env.BODY);
 
-          const template = fs.readFileSync('templates/campaign-template.html', 'utf8');
+          let mailto = `mailto:${to}?`;
 
-          const output = template
-            .replace(/__TO__/g, to)
-            .replace(/__CC__/g, cc)
-            .replace(/__BCC__/g, bcc)
-            .replace(/__SUBJECT__/g, subject)
-            .replace(/__LABEL__/g, folder)
-            .replace(/BODY_PLACEHOLDER/g, JSON.stringify(body));
+          const params = [];
 
-          fs.writeFileSync(`${folder}/index.html`, output);
+          if (cc) params.push(`cc=${cc}`);
+          if (bcc) params.push(`bcc=${bcc}`);
+          params.push(`subject=${subject}`);
+          params.push(`body=${body}`);
+
+          mailto += params.join("&");
+
+          let template = fs.readFileSync('templates/campaign-template.html', 'utf8');
+
+          template = template
+            .replace(/__MAILTO__/g, mailto)
+            .replace(/__LABEL__/g, folder);
+
+          fs.writeFileSync(`${folder}/index.html`, template);
           EOF
 
       - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
           git add .
           git commit -m "Add campaign ${{ github.event.inputs.folder }}"
           git push

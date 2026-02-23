@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Send Email</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Analytics -->
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-G6BG8KV70C"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -13,46 +13,16 @@
     gtag('js', new Date());
     gtag('config', 'G-G6BG8KV70C');
 
-    function buildMailto() {
-      const to = "__TO__";
-      const cc = "__CC__";
-      const bcc = "__BCC__";
-      const subject = "__SUBJECT__";
-      const body = "__BODY__";
-
-      let params = [];
-
-      if (cc) {
-        params.push("cc=" + encodeURIComponent(cc));
-      }
-
-      if (bcc) {
-        params.push("bcc=" + encodeURIComponent(bcc));
-      }
-
-      params.push("subject=" + encodeURIComponent(subject));
-      params.push("body=" + encodeURIComponent(body));
-
-      return "mailto:" + encodeURIComponent(to) + "?" + params.join("&");
-    }
-
-    function redirect() {
-      gtag('event', 'mailto_open', {
-        event_category: 'Email Campaign',
-        event_label: "__LABEL__"
-      });
-
-      const mailto = buildMailto();
-
-      setTimeout(() => {
-        window.location.href = mailto;
-      }, 300);
-    }
-
-    window.onload = redirect;
+    gtag('event', 'mailto_open', {
+      event_category: 'Email Campaign',
+      event_label: '__LABEL__'
+    });
   </script>
+
+  <meta http-equiv="refresh" content="0; url=__MAILTO__">
 </head>
+
 <body>
-  <p>Redirecting…</p>
+  <p>Sent! Thanks!</p>
 </body>
 </html>
